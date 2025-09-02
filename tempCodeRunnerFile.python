@@ -1,0 +1,41 @@
+import itertools
+import pandas as pd
+from caas_jupyter_tools import display_dataframe_to_user
+
+rows = []
+for p, q, r, s, t in itertools.product([True, False], repeat=5):
+    not_p = not p
+    not_s = not s
+    not_t = not t
+    
+    conj_notp_r = (not_p and r)
+    impl = (not conj_notp_r) or t
+    xor_nots_t = (not_s != t)
+    conj_q_nott = (q and not_t)
+    rhs = xor_nots_t or conj_q_nott
+    B = (impl == rhs)
+    
+    rows.append({
+        "p": "T" if p else "F",
+        "q": "T" if q else "F",
+        "r": "T" if r else "F",
+        "s": "T" if s else "F",
+        "t": "T" if t else "F",
+        "¬p": "T" if not_p else "F",
+        "¬s": "T" if not_s else "F",
+        "¬t": "T" if not_t else "F",
+        "¬p∧r": "T" if conj_notp_r else "F",
+        "(¬p∧r)→t": "T" if impl else "F",
+        "¬s⊕t": "T" if xor_nots_t else "F",
+        "q∧¬t": "T" if conj_q_nott else "F",
+        "RHS": "T" if rhs else "F",
+        "B": "T" if B else "F"
+    })
+
+df = pd.DataFrame(rows)
+df = df.sort_values(by=["p","q","r","s","t"], ascending=[False, False, False, False, False]).reset_index(drop=True)
+
+display_dataframe_to_user("Expanded truth table for B", df)
+
+md = df.to_markdown(index=False)
+print(md)
